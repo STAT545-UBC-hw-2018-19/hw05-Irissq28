@@ -1,1 +1,1 @@
-This is class 1 excercises
+This is class 3 excercises
