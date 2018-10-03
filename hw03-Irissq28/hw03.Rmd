@@ -1,0 +1,333 @@
+---
+title: "Exploring dplyr package"
+author: "Irissq28"
+date: "29th September, 2018"
+output: github_document
+---
+
+##### Bring rectangular data in
+
+* `dplyr` is my data manipulation tool
+* `ggplot2` is my visualization tool
+
+```{r setup}
+library(ggplot2)
+library(gapminder)
+library(dplyr)
+library(reshape2)
+library(grid)
+library(gridBase)
+library(gridExtra)
+```
+
+#### The Assighment
+
+##### Task menu 1
+
+**Get the maximum and minimum of GDP per capita for all continents.**
+
+To get the maximum and minimum of GDP per capita for all continents, we first neet to print the output data.
+
+```{r Get the summary infomation: maximum and minimum of GDP per capita}
+gdpc <- gapminder %>%
+  group_by(continent) %>%
+  summarize(gdpmin=min(gdpPercap),
+            gdpmax=max(gdpPercap))
+tt1 <- ttheme_minimal(
+  core=list(bg_params = list(fill = blues9[1:5], col=NA),
+            fg_params=list(fontface=3)),
+  colhead=list(fg_params=list(col="lightgreen", fontface=4L)),
+  rowhead=list(fg_params=list(col="pink", fontface=3L)))
+
+grid.arrange(tableGrob(gdpc, theme = tt1),nrow = 1)
+```
+
+How about we use `melt` from `reshape2` package to form a new table, which is easier for us to plot in the next step.
+
+I'm going to use `ggplot` and `geom_bar` here to illustrarte the minimum and maximum GDP per capita for each continent.
+I define my own set of colors with `scale_fill_manual`, and use `scale_y_log10() to make the plot more readable`
+
+From the graph below, it can be observed that Oceania with the smallest difference between minimum and maximum GDP per capita.
+
+```{r Form a new table with `melt` and data visualization}
+mdata <- melt(gdpc,id="continent")
+mplot <- ggplot(mdata,aes(continent,value,fill = variable )) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  #fill the graph in another color manually
+  scale_fill_manual(values = c("#CC6666","#9999CC")) +
+  #scale the data to make the graph readable
+  scale_y_log10() +
+  labs(x = "Continent", y = "Value", title = "Minimum and maximum gdpPercap for each continent")
+
+tt <- ttheme_default(base_size = 12,
+                     colhead=list(fg_params = list(parse=TRUE)))
+mdata_table <- tableGrob(mdata,rows = NULL,theme = tt)
+
+grid.arrange(mdata_table, mplot,
+             as.table = TRUE,nrow = 1)
+
+```
+
+
+
+
+##### Task menu 2
+
+**Look at the spread of GDP per capita within the continents.**
+
+To look at the spread of GDP per captia for all continent, use `group_by`  `summarize` is a good choice.
+
+As we can see from the table, The maximum GDP per capita for Asis is the largest for all continents, meanwhile the standard deviation is also the largest. The minimum GDP per capita for Oceania is the largest among other areas, the mean of GDP per capita for Oceania is also the highest.
+
+```{r Spread of GDP per capita within the continents}
+spread_GDP <- gapminder %>%
+  group_by(continent) %>%
+  summarize(maxGDP = max(gdpPercap),
+            minGDP = min(gdpPercap),
+            sdGDP = sd(gdpPercap),
+            meanGDP = mean(gdpPercap))
+
+spread_GDP_plot <- spread_GDP %>%
+  ggplot() +
+  geom_errorbar(aes(x = continent,ymin = minGDP,ymax = maxGDP)) +
+  geom_point(aes(x = continent,y = meanGDP,color = "mean")) +
+  geom_point(aes(x = continent,y = sdGDP,
+                 color = "standard deviation"),alpha = 0.5)+
+  labs(x = "continent",y = "gdp Per capita",
+       title = "Spread of GDP per capita within the continents") +
+  theme(plot.title = element_text(size = 14))
+
+# Create a gtable containing text grobs         
+spreadGDPtable <- tableGrob(spread_GDP,rows = NULL,
+                            theme = ttheme_minimal())
+#place plot and table on a page
+grid.arrange(spread_GDP_plot, spreadGDPtable,
+             as.table = FALSE,nrow = 2)
+```
+
+From this graph, we can notice that the difference between the maximum GDP per capita and minimum GDP per capita is high in Asia, which might be the reason that the standard deviation is higher than mean GDP per capita in Asia. For situation in Oceania, the value of GDP per capita performed in a opposite way, which is reasonable according to our previous explaination.
+
+
+##### Task menu 3
+
+**Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. Just try something other than the plain vanilla mean.**
+
+Calculating a weighted mean of life expectancy for different years, weighting by population
+
+```{r Calculation of weighted mean of life expectancy}
+weighed <- gapminder %>%
+  group_by(year) %>%
+  summarize(weighted_mean = weighted.mean(lifeExp,pop))
+weighed
+```
+
+Data visualization in a line graph. As we see, the weighted mean of life expectancy in each continent keeps increasing for different years.
+
+```{r Data visualization : Changing in weighted mean of life expectancy for different years }
+#data frame from table above
+weighed %>%
+  ggplot(aes(x = year,y = weighted_mean)) +
+  geom_path(arrow = arrow()) +
+  geom_point(aes(size=weighted_mean),alpha=0.5) +
+  labs(x = "year", y = "weighted_mean",
+       title = "Changing in weighted mean of life expectancy for different years")
+```
+
+##### Task menu 4
+
+**How is life expectancy changing over time on different continents**
+
+Firstly, we need to print the data.
+
+```{r Life expectancy changing over time on different continents}
+lifeExp_change<-gapminder %>%
+  group_by(continent,year) %>%
+  summarize(meanlifeExp=mean(lifeExp))
+lifeExp_change
+
+```
+
+After than ,it data visualization part, we plot it in line graph,
+
+```{r Data visualization : Changing of life expectancy over time on different continents}
+oneplot<-lifeExp_change %>%
+  ggplot(aes(x=year,y=meanlifeExp,color=continent)) +
+  geom_line() +
+  geom_point() +
+  labs(x="year",y="mean_lifeExp",
+       title="Changing of life expectancy over time on different continents")
+oneplot
+```
+
+Data visualization of previous graph in subplots.
+
+```{r Subplots of last graph}
+oneplot + 
+  facet_wrap(~continent,scales = "fixed") +
+  labs(x="year",y="mean_lifeExp",
+       title="Change of life expectancy over time on different continents in subplots")
+```
+
+We can see that the increasing rate of mean life expectancy is highest over years.
+
+I'm going to figure out how is life expectancy changing each 5 years on different continents.
+
+Still,we print the data, the year is recorded by each 5 year, so we need to use this year minus previous yearm and record it as `change5`.
+
+```{r How is life expectancy changing each 5 years on different continents}
+change5 <- lifeExp_change %>%
+  mutate(change=meanlifeExp-lag(meanlifeExp)) %>%
+  filter(!is.na(change))
+change5
+```
+
+Data visualization of each 5 years.
+
+```{r Data visualization of each 5 years}
+ggplot(change5,aes(year,change,color = continent)) +
+  facet_wrap(~continent,scales = "fixed") +  
+  #"fixed" ----scale the value of y axis to a fixed range
+  geom_line() +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "year",y = "changes in 5 years",
+       title = "life expectancy change in each 5 years on different continents")
+```
+
+It can be noticed that the life expectancy keeps increasing for most of continents over years except for Africa, which has a little decrease after the year of 2000.
+
+##### Task menu 5
+
+**Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy - you decide - a mean or median or some other quantile or perhaps your current age. Then determine how many countries on each continent have a life expectancy less than this benchmark, for each year**
+
+I find out the mean of `lifeExp` and then treate the value which is smaller than `mean(lifeExp)` as life expectancy, and use `geom_point()` to illustrate.
+
+```{r Tables}
+meanlifeExp <- gapminder %>%
+  summarize(mean = mean(lifeExp))
+meanlifeExp
+
+lowlexp <- gapminder %>%
+  group_by(continent,country) %>%
+  filter(lifeExp < 59.5) %>%
+  arrange(lifeExp)
+lowlexp
+```
+
+From this graph, we can conclude that the life expectancy of most countries in Europe is high, also no country with low life expectancy in Oceania, and the proportion of country with high and low life expectancy is almost the same in Asia.
+
+```{r Countries with life expectancy lower/higher than mean life expectancy in each continents}
+lifeExphighorlow <- gapminder %>%
+  mutate(low = if_else(lifeExp >59.5,"High","Low")) 
+lifeExphighorlow
+lifeExphighorlow %>%
+  ggplot(aes(x = year,y = lifeExp,color = low)) +
+  geom_point(alpha = 0.8)+
+  facet_wrap(~continent,scales = "fixed") + 
+  labs(x = "year",y = "life expectancy",
+       title = "Countries with life expectancy lower/higher than mean life expectancy in each continents")
+  
+```
+
+Let's change another way to take a look at this data.According to this plot, it can be obsevered that the life expectancy of countries in Oceania is higher than average level, while the percentages of countries in Africa and Asia with low life expectancy are relatively higher, but the percentage in Asia shows that it decreased over time.
+
+```{r Countries with life expectancy lower than mean life expectancy in each continents}
+lowlexp %>%
+  ggplot(aes(x = year,y = lifeExp,color = continent)) +
+  geom_point()+
+  facet_wrap(~continent,scales = "fixed") +
+  labs(x = "year",y = "life expectancy",
+       title = "Countries with life expectancy lower than mean life expectancy in each continents")
+```
+
+To explore deeply, I will compute how many countries on each continent have a low life expectancy for each year.
+
+```{r The number of countries on each continent have a low life expectancy for each year}
+#To calculate the the number of countries with lower life expectancy(less than average value in their continent) for each year
+lowercountry <- lifeExphighorlow %>%
+  filter(low == "Low") %>%
+  group_by(continent,year) %>%
+  summarize(num = n()) 
+knitr::kable(lowercountry)
+
+lowercountry %>%
+  ggplot(aes(x = year,y = num,color = continent)) +
+  geom_line(alpha = 0.8) +
+  geom_point() +
+  facet_wrap(~continent,scales = "fixed") + # scale the y axis of each subplot to a fixed range
+  labs(x = "year",y = "number of countries",
+       title = "The number of countries on each continent have a low life expectancy for each year")
+  
+```
+
+
+##### Task menu 6
+
+**Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.**
+
+According to the informatin we disscussed above, I wonder if there's a relationship between populaton and gdp per captia in Europe,because we didn't discuss a lot of *Europe*. Let's try to print the data first.
+
+```{r Printing data}
+countries<- gapminder %>%
+  filter(continent == "Europe") %>%
+  group_by(country,year)
+
+#show the data 
+countries
+```
+
+```{r Changes of life expectancy with the increase of population}
+countries %>%
+  ggplot(aes(x = pop,y = lifeExp)) + 
+  geom_line() +
+  facet_wrap(~country,scales = "free") +
+  #scale y axis
+  scale_y_log10() +
+  # scale the x axis : NULL for no breaks
+  scale_x_continuous(breaks = NULL)+
+  labs(x = "Population",y = "life expectancy",
+       title = "Changes of life expectancy with the increase of population")
+```
+
+To get a clear conclustion(maybe), we can try to compare the pop-life expectancy between Europe and Africa, the reason why I choose Africa is because Africa has the highest number of countries with low life expectancy, while Europe has the lowest number of countries. We can see that there might be a relationship between population and life expectancy, there might be more chance of a country with low life expectancy if the population is large.
+
+```{r Comparison of pop-life expectancy between Europe and Oceania}
+gapminder %>%
+  filter(continent %in% c("Europe","Africa")) %>%
+  ggplot(aes(x = pop,y = lifeExp)) +
+  facet_wrap(~continent,scales = "fixed") +
+  geom_hex() +
+  labs(x = "populaton",y = "life expectancy",title = "Comparison of pop-life expectancy between Europe and Oceania") +
+  theme_bw()
+```
+
+Let's going to find out the number of countries with low life expectancy in Europe from 1952 to 1962(From our previous analyization,the first 20 years of Europe, there are a few countries with low life Expectancy,but the first 10 years decreases quickly). So I might think, generally speaking, With the improvement of our living standard and medical technology, life Expectancy will also increase.
+
+```{r Number of countries with low life expectancy in Europe}
+lifeExphighorlow %>%
+  filter(continent == "Europe") %>%
+  filter(year < 1967) %>%
+  ggplot(aes(x=country,y=lifeExp,label=country)) +
+  geom_col(aes(fill=low)) +
+  labs(x = "life expectancy",y = "country",title = "Comparison of pop-life expectancy between Europe and Oceania") +
+  facet_wrap(~year,scales = "fixed") +
+  coord_flip()
+```
+
+
+##### But I want to do more
+
+Getting table and figure side-by-side, Please check [task menu 1](#Task menu 1) , also [task menu 2](#Task menu 2)
+For [nice fancy table](#Task menu 1), Please check task menu 1
+
+##### References
+
+[Displaying tables as grid graphics](https://cran.r-project.org/web/packages/gridExtra/vignettes/tableGrob.html)
+
+[Beautiful plotting](http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/)
+
+
+
+
+
+
