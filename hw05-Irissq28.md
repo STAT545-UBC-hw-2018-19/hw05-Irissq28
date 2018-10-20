@@ -361,7 +361,9 @@ grid.arrange(tableGrob(pop_select_countries, theme = tt, rows = NULL),
              top = "Maximum population in selected countries")
 ```
 
-![](hw05-Irissq28_files/figure-markdown_github/pop_select%20data%20frame-1.png) I'm going to use `arrange` to reshape the data frame, make them non-alphabetical.
+![](hw05-Irissq28_files/figure-markdown_github/pop_select%20data%20frame-1.png)
+
+I'm going to use `arrange` to reshape the data frame, make them non-alphabetical.
 
 ``` r
 reshaped_pop_select <- pop_select %>%
@@ -488,7 +490,7 @@ Part 3: Visualization design
 
 ### Original and new figure1
 
-Remake the figure i used in [assignment 3](https://github.com/STAT545-UBC-students/hw03-Irissq28/blob/master/hw03.md)
+Remake the figure I used in [assignment 3](https://github.com/STAT545-UBC-students/hw03-Irissq28/blob/master/hw03.md)
 
 Here is the original figure, which describes the changing of life expectancy over time in each continent.
 
@@ -583,7 +585,7 @@ Making an interacitve graph by applying the `ggplotly()` function.
     # Please add {r} to this chunk
     ggplotly(remake_plot)
 
-![remake\_plot](https://gfycat.com/IdolizedFrenchBaldeagle)
+![remake\_plot](https://media.giphy.com/media/TFz4i68zpysJnv4hwd/giphy.gif)
 
 Part 4: Writing figures to file
 -------------------------------

@@ -295,6 +295,7 @@ pop_select_countries <- pop_select %>%
 grid.arrange(tableGrob(pop_select_countries, theme = tt, rows = NULL),
              top = "Maximum population in selected countries")
 ```
+
 I'm going to use `arrange` to reshape the data frame, make them non-alphabetical.
 
 ```{r reorder the pop_select data frame}
@@ -375,7 +376,7 @@ From the table and structure mentioned above, we can see that dput()/dget() can 
 
 ### Original and new figure1
 
-Remake the figure i used in [assignment 3](https://github.com/STAT545-UBC-students/hw03-Irissq28/blob/master/hw03.md)
+Remake the figure I used in [assignment 3](https://github.com/STAT545-UBC-students/hw03-Irissq28/blob/master/hw03.md)
 
 Here is the original figure, which describes the changing of life expectancy over time in each continent.
 
@@ -470,8 +471,7 @@ Making an interacitve graph by applying the `ggplotly()` function.
 ggplotly(remake_plot)
 ```
 
-![remake_plot](https://gfycat.com/IdolizedFrenchBaldeagle)
-
+![remake_plot](https://media.giphy.com/media/TFz4i68zpysJnv4hwd/giphy.gif)
 
 ## Part 4: Writing figures to file
 
