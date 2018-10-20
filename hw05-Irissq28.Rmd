@@ -57,7 +57,7 @@ suppressPackageStartupMessages(library(scales))
 *Drop Oceania.* Filter the Gapminder data to remove observations associated with the continent of Oceania. Additionally, remove unused factor levels. Provide concrete information on the data before and after removing these rows and Oceania; address the number of rows and the levels of the affected factors.
 
 Let's check the dimension of the gapminder data set before we drop the Oceania.
-```{r}
+```{r dimension of the gapminder}
 gap <- gapminder %>%
   summarize(nrows_gap = nrow(gapminder),
             nlevels_continent = nlevels(gapminder$continent))
@@ -69,7 +69,7 @@ After I dropped the Oceania level,this level doesn't always have to be present (
 
 * `droplevels()` operates on either an entire data frame or a factor.
 
-```{r}
+```{r dimension -- after droplevels}
 # data set after drop Oceania
 dropOceania <- gapminder %>%
   filter(continent != "Oceania") %>%
@@ -84,7 +84,7 @@ knitr::kable(dropOceania_s)
 
 * `forcats::fct_drop()` only operates on a factor.
 
-```{r}
+```{r drop a factor}
 # data set after drop Oceania
 dropOceania1 <- gapminder %>%
   filter(continent != "Oceania") %>%
@@ -99,7 +99,7 @@ knitr::kable(dropOceania1_s)
 
 As we can see the results are the same. To summarize, let's provide concrete information on the data before and after removing these rows and address the number of rows and the levels of the affected factors.
 
-```{r}
+```{r comparison}
 tt <- ttheme_default(
   # Use the smaller text size
   core = list(fg_params=list(cex = 0.8)),
@@ -121,7 +121,7 @@ Use the `forcats` package to change the order of the factor levels, based on a p
 
 To explore the effects of `arrange()` on data, let's summarize the mean value of lifeExp in each continent in year 2007. 
 
-```{r}
+```{r before arrange}
 #before arrange
 lifeExp_mean_un <- gapminder %>%
   group_by(continent) %>%
@@ -130,7 +130,7 @@ lifeExp_mean_un <- gapminder %>%
 knitr::kable(lifeExp_mean_un)
 ```
 
-```{r}
+```{r after arrange}
 #after arrange
 lifeExp_mean <- gapminder %>%
   group_by(continent) %>%
@@ -147,12 +147,13 @@ From the table above, the order of America and Asia changed, it seems like the `
 But what about the effect on figure? Let's apply the arranged `lifeExp_mean` data set.
 
 
-```{r}
+```{r arrange lifeExp_mean}
 lifeExp_mean %>%
   ggplot(aes(continent,lifeExp_mean, fill =  continent)) +
   geom_bar(stat = "identity", position = position_dodge(),
            alpha=0.8, show.legend = FALSE) +
   labs(x = "Continent", y = "Mean value of lifeExp", title = "Mean value of lifeExp in each continent in 2007") +
+  scale_fill_brewer(palette = "Set3") +
   theme_bw() +
   theme(plot.title = element_text(size = 13, hjust = 0.5))
 ```
@@ -180,6 +181,7 @@ lifeExp_mean %>%
   geom_bar(stat = "identity", position = position_dodge(),
            alpha=0.8,show.legend = FALSE) +
   labs(x = "Continent", y = "Mean value of lifeExp", title = "Mean value of lifeExp in each continent in 2007") +
+  scale_fill_brewer(palette = "Set3") +
   # theme in black and white
   theme_bw() +
   # title is centerd, title size is adjusted
@@ -199,6 +201,7 @@ lifeExp_mean %>%
   geom_bar(stat = "identity", position = position_dodge(),
            alpha=0.8, show.legend = FALSE) +
   labs(x = "Continent", y = "Mean value of lifeExp", title = "Mean value of lifeExp in each continent in 2007") +
+  scale_fill_brewer(palette = "Set3") +
   # theme in black and white
   theme_bw() +
   # title is centerd, title size is adjusted
@@ -211,7 +214,7 @@ Still wondering does `fct_reorder2()` has the same effects on reordering a facto
 
 Now let's find the effects of `fct_reorder2()` for 2d displays where the factor is mapped to a non-position, using the data frome of the trend of population in selected countries.
 
-```{r}
+```{r reorder a factor3}
 select_countries <- c("Canada", "America", "Norway", 
                       "Germany", "Australia","Greece")
 pop_select <- gapminder %>% 
@@ -221,6 +224,7 @@ pop_select <- gapminder %>%
 ggplot(pop_select, aes(year, pop)) +
   geom_line(aes(colour=country)) +
   labs(x = "year", y = "population", title = "The trend of population in selected countries") +
+  scale_color_brewer(palette = "Dark2") +
   # theme in black and white
   theme_bw() +
   # title is centerd, title size is adjusted
@@ -229,12 +233,13 @@ ggplot(pop_select, aes(year, pop)) +
 
 Using `arrange()` only
 
-```{r}
+```{r reorder a factor4}
 pop_select %>%
   arrange(pop) %>%
   ggplot(aes(year, pop)) +
   geom_line(aes(group=country, colour=country)) +
   labs(x = "year", y = "population", title = "The trend of population in selected countries") +
+  scale_color_brewer(palette = "Dark2") +
   # theme in black and white
   theme_bw() +
   # title is centerd, title size is adjusted
@@ -243,12 +248,13 @@ pop_select %>%
 
 After the application of `fct_reorder2()`.
 
-```{r}
+```{r reorder a factor5}
 pop_select %>%
   mutate(country = fct_reorder2(country,year,pop)) %>%
   ggplot(aes(year, pop)) +
   geom_line(aes(group=country, colour=country)) +
   labs(x = "year", y = "population", title = "The trend of population in selected countries") +
+  scale_color_brewer(palette = "Dark2") +
   # theme in black and white
   theme_bw() +
   # title is centerd, title size is adjusted
@@ -257,13 +263,14 @@ pop_select %>%
 
 Using `fct_reorder2()` and `arrange()` together.
 
-```{r}
+```{r reorder a factor6}
 pop_select %>%
   mutate(country = fct_reorder2(country,year,pop)) %>%
   arrange(pop) %>%
   ggplot(aes(year, pop)) +
   geom_line(aes(group=country, colour=country)) +
   labs(x = "year", y = "population", title = "The trend of population in selected countries") +
+  scale_color_brewer(palette = "Dark2") +
   # theme in black and white
   theme_bw() +
   # title is centerd, title size is adjusted
@@ -280,7 +287,7 @@ pop_select %>%
 
 To verify whether the data is still survives the round trip of writing to file then reading back in, I choose the `pop_select` data frame, which describes the lifeExp,pop and gdpPercap in those countries in each year.
 
-```{r}
+```{r pop_select data frame}
 pop_select_countries <- pop_select %>%
   arrange(pop) %>%
   group_by(country) %>%
@@ -290,7 +297,7 @@ grid.arrange(tableGrob(pop_select_countries, theme = tt, rows = NULL),
 ```
 I'm going to use `arrange` to reshape the data frame, make them non-alphabetical.
 
-```{r}
+```{r reorder the pop_select data frame}
 reshaped_pop_select <- pop_select %>%
   mutate(country = fct_reorder(country,pop,max)) %>%
   group_by(country) %>%
@@ -305,7 +312,7 @@ grid.arrange(tableGrob(reshaped_pop_select, theme = tt, rows = NULL),
 
 From the above data, it can be noticed that the alphabetical order is completely disrupted. Let's save it in `csv` file.
 
-```{r}
+```{r write and save}
 # wirte to .csv
 write_csv(reshaped_pop_select,"reshaped_pop_select.csv")
 # read .csv
@@ -327,7 +334,7 @@ the class of country changed from <fct> to <chr>.
 `saveRDS()/readRDS()`
 *Description: Functions to write a single R object to a file, and to restore it.*
 
-```{r}
+```{r save/read RDS}
 # save to .rds
 saveRDS(reshaped_pop_select,"reshaped_pop_select.rds")
 # read .rds
@@ -348,7 +355,7 @@ From the table and structure mentioned above, we can see that saveRDS()/readRDS(
 `dput()/dget()`
 *Description: Writes an ASCII text representation of an R object to a file or connection, or uses one to recreate the object.*
 
-```{r}
+```{r dput()/dget()}
 #put to .txt
 dput(reshaped_pop_select,"reshaped_pop_select.txt")
 #get .txt
@@ -366,11 +373,13 @@ From the table and structure mentioned above, we can see that dput()/dget() can 
 
 ## Part 3: Visualization design
 
+### Original and new figure1
+
 Remake the figure i used in [assignment 3](https://github.com/STAT545-UBC-students/hw03-Irissq28/blob/master/hw03.md)
 
 Here is the original figure, which describes the changing of life expectancy over time in each continent.
 
-```{r}
+```{r original figure}
 lifeExp_change<-gapminder %>%
   group_by(continent,year) %>%
   summarize(meanlifeExp=mean(lifeExp))
@@ -394,7 +403,7 @@ To make the graph effective and good looking, I made some improvment in color an
     * background color changed
     * remove the legend(effective plot)
 
-```{r}
+```{r new figure}
 lifeExp_change_plot <- lifeExp_change %>%
   ggplot(aes(x=year,y=meanlifeExp,color=continent)) +
   # remove the legend(effective plot)
@@ -415,6 +424,8 @@ lifeExp_change_plot <- lifeExp_change %>%
 lifeExp_change_plot
 ```
 
+### Original and new figure2
+
 I will now remake another plot in [assignment 2](https://github.com/STAT545-UBC-students/hw02-Irissq28/blob/master/hw02-Irissq28.md)
 
 I will now show the comparison between the orginal plot and remake plot. the two plots all illustrate the relationship between `lifeExp`, `gdpPercap` and `pop`.
@@ -431,7 +442,7 @@ I will now show the comparison between the orginal plot and remake plot. the two
 * theme
     * use the classic dark-on-light ggplot2 theme
 
-```{r}
+```{r original vs. new figure}
 original_plot <- ggplot(gapminder, aes(x=gdpPercap , y=lifeExp, color=pop)) + 
   geom_point(size=1,alpha=0.3) + 
   scale_color_continuous(trans="log10",low="#000099",high="#FF0000",space="Lab")
@@ -446,7 +457,7 @@ remake_plot <- ggplot(gapminder, aes(x=gdpPercap , y=lifeExp, color=pop)) +
   scale_y_continuous(breaks=10*(1:10)) +
   # the classic dark-on-light ggplot2 theme
   theme_bw()
-
+# combine 2 plots together
 grid.arrange(original_plot, remake_plot,
              nrow = 2, top = "Comparison between the two plots")  
 
@@ -454,18 +465,23 @@ grid.arrange(original_plot, remake_plot,
 
 Making an interacitve graph by applying the `ggplotly()` function.
 
-```{r}
+```
+# Please add {r} to this chunk
 ggplotly(remake_plot)
 ```
 
+![remake_plot](https://gfycat.com/IdolizedFrenchBaldeagle)
+
 
 ## Part 4: Writing figures to file
+
+### Write the frigure
 
 Let's Use ggsave() to explicitly save a plot to file. Then use image saved path to load and embed it here. 
 
 I'm going to use `lifeExp_change_plot` I mentioned above.
 
-```{r}
+```{r ggsave}
 ggsave("./ggsave/lifeExp_change_plot.png",
        plot=lifeExp_change_plot,
        # arbitrary width and height
@@ -474,34 +490,101 @@ ggsave("./ggsave/lifeExp_change_plot.png",
        scale = 1.1)
 ```
 
+### Reload the frigure
+
 Then I will now reload the plot.
 
-![lifeExp_change_plot](/Users/Anan/Desktop/git/hw05-Irissq28/ggsave/lifeExp_change_plot.png)
+![lifeExp_change_plot](https://github.com/STAT545-UBC-students/hw05-Irissq28/blob/master/ggsave/lifeExp_change_plot.png)
 
 ## But I want to do more
 
+**Gapminder version** *Pick a handful of countries, each of which you can associate with a stereotypical food (or any other non-controversial thing ??? sport? hobby? type of music, art or dance? animal? landscape feature?). Create an excerpt of the Gapminder data, filtered to just these countries. Create a new factor ??? you pick the name! ??? by mapping the existing country factor levels to the new levels.*
 
+### Create a data frame
 
+Let's make a new data frame first.
 
+```{r new data frame}
+# new data frame
+country_drink <- data.frame(
+  country = c("Italy","Germany","Japan","China","Greece"),
+  drink = c("Wine","Beer","Sake","Maotai","Ouzo"))
 
+gap_country <- gapminder %>%
+  filter(country %in% c("Italy","Germany","Japan","Korea","China","Greece")) %>%
+  droplevels()
 
+leftjoin_country <- left_join(country_drink, gap_country, by = "country")
 
+tt1 <- ttheme_default(
+  # Use the smaller text size
+  # Alternate the row fill colours
+  core = list(fg_params=list(cex = 0.6),
+              bg_params=list(fill=c("lightyellow","lightblue"))), 
+  colhead = list(fg_params=list(cex = 0.6)), 
+  rowhead = list(fg_params=list(cex = 0.6)), rows=NULL)
 
+grid.arrange(tableGrob(head(leftjoin_country),rows = NULL,theme = tt1),
+             tableGrob(tail(leftjoin_country),rows = NULL,theme = tt1),
+             nrow = 2, top = "head and tail of leftjoin_country table")
+```
+  
+    
+```{r leftjoin:lifeExp and drink in each country}
+leftjoin_country %>%
+  ggplot(aes(x = country, y = lifeExp, color = drink, shape = drink)) +
+  geom_point(size = 3, alpha = 0.6) +
+  theme_bw() +
+  # size and position of title changed
+  theme(plot.title = element_text(size = 10,hjust = 0.5),
+        # size of axis text changed
+        axis.text = element_text(size = 7)) +
+  labs(title = "lifeExp and drink in each country")
+```
 
+### Change the name of levels
 
+`fct_recode()` can be used to change the name of levels, here we change the "United States" into "US".
 
+```{r fct_recode:lifeExp in each year}
+gapminder %>% 
+  filter(country %in% c("Canada", "United States", "Mexico")) %>% 
+  # chaneg the level name
+  mutate(country = country %>%
+           fct_recode("US" = "United States")) %>%
+  ggplot(aes(year, lifeExp)) +
+  facet_wrap( ~ country, scales = "free_y") +
+  geom_boxplot(aes(group = country),fill = "yellow",color = "lightblue",
+               outlier.color = "purple", alpha = 0.3) +
+  theme_bw() +
+  # size and position of title changed
+  theme(plot.title = element_text(size = 12,hjust = 0.5),
+        # size of axis text changed
+        axis.text = element_text(size = 7),
+        strip.background = element_rect(fill = "orange")) +
+  labs(title = "lifeExp for Canada, US, Mexico in each year")
+  
+```
 
+### Combine the levels into groups
 
+`fct_collapse()` can be used to change the name of levels, here we change the "Japan" and "China" into "Asia".
 
+Here we use the new dataframe we created before.
 
-
-
-
-
-
-
-
-
-
-
-
+```{r fct_collapse:gdpPercap in each country}
+leftjoin_country %>%
+  filter(gdpPercap > 15000) %>%
+  mutate(country = country %>% 
+           fct_collapse("country_Asia" = c("China","Japan"))) %>%
+  ggplot(aes(x = country , fill = country)) +
+  geom_bar() +
+  # RColorBrewer in boxplot
+  scale_fill_brewer(palette = "Accent") +
+  theme_bw() +
+  # size and position of title changed
+  theme(plot.title = element_text(size = 10,hjust = 0.5),
+        # size of axis text changed
+        axis.text = element_text(size = 7)) +
+  labs(title = "Barplot of gdpPercap in each country (including combined)")
+```
