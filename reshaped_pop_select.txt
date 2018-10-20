@@ -1,0 +1,5 @@
+structure(list(country = structure(1:5, .Label = c("Norway", 
+"Greece", "Australia", "Canada", "Germany"), class = "factor"), 
+    max_pop = c(4627926, 10706290, 20434176, 33390141, 82400996
+    )), class = c("tbl_df", "tbl", "data.frame"), row.names = c(NA, 
+-5L))
