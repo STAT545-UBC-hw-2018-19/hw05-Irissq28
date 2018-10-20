@@ -614,7 +614,7 @@ Then I will now reload the plot.
 But I want to do more
 ---------------------
 
-**Gapminder version** *Pick a handful of countries, each of which you can associate with a stereotypical food (or any other non-controversial thing ??? sport? hobby? type of music, art or dance? animal? landscape feature?). Create an excerpt of the Gapminder data, filtered to just these countries. Create a new factor ??? you pick the name! ??? by mapping the existing country factor levels to the new levels.*
+**Gapminder version**
 
 ### Create a data frame
 
@@ -625,13 +625,10 @@ Let's make a new data frame first.
 country_drink <- data.frame(
   country = c("Italy","Germany","Japan","China","Greece"),
   drink = c("Wine","Beer","Sake","Maotai","Ouzo"))
-
 gap_country <- gapminder %>%
   filter(country %in% c("Italy","Germany","Japan","Korea","China","Greece")) %>%
   droplevels()
-
 leftjoin_country <- left_join(country_drink, gap_country, by = "country")
-
 tt1 <- ttheme_default(
   # Use the smaller text size
   # Alternate the row fill colours
@@ -639,7 +636,6 @@ tt1 <- ttheme_default(
               bg_params=list(fill=c("lightyellow","lightblue"))), 
   colhead = list(fg_params=list(cex = 0.6)), 
   rowhead = list(fg_params=list(cex = 0.6)), rows=NULL)
-
 grid.arrange(tableGrob(head(leftjoin_country),rows = NULL,theme = tt1),
              tableGrob(tail(leftjoin_country),rows = NULL,theme = tt1),
              nrow = 2, top = "head and tail of leftjoin_country table")
