@@ -12,7 +12,7 @@ This repo contains four parts, which are focused on Factor and figure management
 
 In this assignment, I applied the interactive plot, to preview the effect, I upload the gif version of the figure, if you want to try the magic of the interactive plot, please download the `.Rmd` file and run it in RStudio.
 
-Here is an useful [link]((https://giphy.com/create/gifmaker)), I made my gif, it's very easy, only thing you need to do before uplaod is to record what you need to show by *screen recording (control + shift + 5 for Mac)* 
+Here is an useful [link](https://giphy.com/create/gifmaker), I made my gif, it's very easy, only thing you need to do before uplaod is to record what you need to show by *screen recording (control + shift + 5 for Mac)* 
  
  # Navigation for HW #5
 
